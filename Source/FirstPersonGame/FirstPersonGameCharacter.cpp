@@ -75,7 +75,7 @@ void AFirstPersonGameCharacter::BeginPlay()
 	//	Mesh1P->SetHiddenInGame(false, true);
 	//}
 
-	Gun->AnimInstance = Mesh1P->GetAnimInstance();
+	Gun->AnimInstance1P = Mesh1P->GetAnimInstance();
 		// Bind fire event
 	InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGuns::OnFire);
 }
