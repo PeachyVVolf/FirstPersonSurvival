@@ -4,6 +4,12 @@
 #include "GM_InfiniteTerrain.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "EngineUtils.h"
+#include "ActorPool.h"
+
+AGM_InfiniteTerrain::AGM_InfiniteTerrain() 
+{
+	NavMeshBoundsVolumePool = CreateDefaultSubobject<UActorPool>(FName(" Nav Mesh Bounds Volume"));
+}
 
 void AGM_InfiniteTerrain::PopulateBoundsVolumePool()
 {
@@ -17,5 +23,5 @@ void AGM_InfiniteTerrain::PopulateBoundsVolumePool()
 
 void AGM_InfiniteTerrain::AddToPool(ANavMeshBoundsVolume* VolumeToAdd)
 {
-	UE_LOG(LogTemp, Error, TEXT("Volume To Add: %s"), *VolumeToAdd->GetName());
+	NavMeshBoundsVolumePool->Add(VolumeToAdd);
 }

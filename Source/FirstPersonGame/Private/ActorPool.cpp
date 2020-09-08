@@ -13,22 +13,20 @@ UActorPool::UActorPool()
 	// ...
 }
 
-
-// Called when the game starts
-void UActorPool::BeginPlay()
+AActor* UActorPool::CheckOut()
 {
-	Super::BeginPlay();
+	if (Pool.Num() > 0)
+		return Pool.Pop();
 
-	// ...
-	
+	return nullptr;
 }
 
-
-// Called every frame
-void UActorPool::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UActorPool::Return(AActor* ActorToReturn)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	Add(ActorToReturn);
 }
 
+void UActorPool::Add(AActor* ActorToAdd)
+{
+	Pool.Push(ActorToAdd);
+}
