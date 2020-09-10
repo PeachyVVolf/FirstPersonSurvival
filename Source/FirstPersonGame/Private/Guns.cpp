@@ -7,6 +7,7 @@
 #include "XRMotionControllerBase.h"
 #include "MotionControllerComponent.h"
 #include "D:\Projects\FirstPersonGame\Source\FirstPersonGame\FirstPersonGameProjectile.h"
+#include <time.h> 
 
 // Sets default values
 AGuns::AGuns()
@@ -61,50 +62,104 @@ void AGuns::Tick(float DeltaTime)
 
 }
 
+int AGuns::GetTotalAmmo() 
+{
+	return TotalAmmo;
+}
+
+int AGuns::GetCurrentAmmo() 
+{
+	return CurrentAmmo;
+}
+
+void AGuns::SetTotalAmmo()
+{
+
+	if (TotalAmmo >= 30)
+	{
+		TotalAmmo -= 30;
+	}
+	else {
+		TotalAmmo = 0;
+	}
+}
+
+void AGuns::SetCurrentAmmo()
+{
+	if (TotalAmmo >= 30)
+	{
+		CurrentAmmo = 30;
+	}
+	else {
+		CurrentAmmo = TotalAmmo;
+	}
+}
+
+
+bool AGuns::IsReloading() 
+{
+	return Reloading;
+}
+
+void AGuns::SetReloading()
+{
+	Reloading = false;
+}
+
 void AGuns::OnFire()
 {
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
-		UWorld* const World = GetWorld();
-		if (World != NULL)
-		{
-			if (bUsingMotionControllers)
+			if (CurrentAmmo > 0 && Reloading==false)
 			{
-				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AFirstPersonGameProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+				Reloading = false;
+				CurrentAmmo--;
+				UWorld* const World = GetWorld();
+				if (World != NULL)
+				{
+					if (bUsingMotionControllers)
+					{
+						const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
+						const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
+						World->SpawnActor<AFirstPersonGameProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+					}
+					else
+					{
+						const FRotator SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
+						// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+						const FVector SpawnLocation = FP_MuzzleLocation->GetComponentLocation();
+
+						//Set Spawn Collision Handling Override
+						FActorSpawnParameters ActorSpawnParams;
+						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+						// spawn the projectile at the muzzle
+						World->SpawnActor<AFirstPersonGameProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+					}
+				}
+
+
+				// try and play the sound if specified
+				if (FireSound != NULL)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+				}
+
+				// try and play a firing animation if specified
+				if (FireAnimation1P != NULL && AnimInstance1P != NULL)
+				{
+					AnimInstance1P->Montage_Play(FireAnimation1P, 1.f);
+				}
+
+				if (FireAnimation3P != NULL && AnimInstance3P != NULL)
+				{
+					AnimInstance3P->Montage_Play(FireAnimation3P, 1.f);
+				}
 			}
 			else
 			{
-				const FRotator SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
-				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-				const FVector SpawnLocation = FP_MuzzleLocation->GetComponentLocation();
-
-				//Set Spawn Collision Handling Override
-				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-				// spawn the projectile at the muzzle
-				World->SpawnActor<AFirstPersonGameProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				Reloading = true;
 			}
-		}
-	}
-
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation1P != NULL && AnimInstance1P != NULL)
-	{
-			AnimInstance1P->Montage_Play(FireAnimation1P, 1.f);
-	}
-
-	if (FireAnimation3P != NULL && AnimInstance3P != NULL)
-	{
-		AnimInstance3P->Montage_Play(FireAnimation3P, 1.f);
 	}
 }

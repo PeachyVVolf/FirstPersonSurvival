@@ -68,6 +68,33 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void OnFire();
 
+	UPROPERTY(EditAnywhere, Category = "Ammo")
+	int TotalAmmo = 100;
+
+	UPROPERTY(EditAnywhere, Category = "Ammo")
+	int CurrentAmmo = 30;
+
+	UPROPERTY(EditAnywhere, Category = "Ammo")
+	bool Reloading;
+
+	UFUNCTION(BlueprintCallable)
+	int GetTotalAmmo();
+
+	UFUNCTION(BlueprintCallable)
+	int GetCurrentAmmo();
+
+	UFUNCTION(BlueprintCallable)
+		void SetTotalAmmo();
+
+	UFUNCTION(BlueprintCallable)
+		void SetCurrentAmmo();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsReloading();
+
+	UFUNCTION(BlueprintCallable)
+	void SetReloading();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override; protected:
